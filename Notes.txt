@@ -1,7 +1,11 @@
-10.24 @6:28 AM
+10.24 
+
+@6:28 AM
     After a long nap, Mercedes finally got something workable but it ended up in another folder
     as to avoid any mishaps in our repo and mess it up. (we new to this, not true to this{yet})
     So i've been working on getting it to run on my device and now I'm going to work on 
     all the fixes and additions from where she left off that she mentioned in our shared notes
 
-    
+@6:54 I was able to integrate the "new folder" inside the repository so now our changes are being tracked
+at first since I'm newbie, the committ said like 10k but i later learned it was just the dependencies
+so i put all the dependencies in a gitignore file 
