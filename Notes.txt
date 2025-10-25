@@ -9,3 +9,5 @@
 @6:54 I was able to integrate the "new folder" inside the repository so now our changes are being tracked
 at first since I'm newbie, the committ said like 10k but i later learned it was just the dependencies
 so i put all the dependencies in a gitignore file 
+
+@ 7:05am having problems comitting th enew folder
