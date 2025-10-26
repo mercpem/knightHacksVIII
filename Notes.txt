@@ -10,4 +10,27 @@
 at first since I'm newbie, the committ said like 10k but i later learned it was just the dependencies
 so i put all the dependencies in a gitignore file 
 
-@ 7:05am having problems comitting th enew folder
+@ 7:05am having problems comitting the new folder
+
+@8:35am I was able to fix some of our problems( error message and repo) but i think we're just going to have to make a new
+repo because after integrating the new folder into the repository folder.... no commits are going through because its
+a large file. 
+now i will work on updating our UI with Figma
+
+@11:25 am We are still trying to see on how we want our UI to look like and then after we have to figure out how 
+we want to implement our chat bot. We have not created a new repo yet but after nappies we will. But, nappies after i get an idea of UI 
+and s light idea on how to implement AI agent. 
+
+
++ This app is more catered to people who are low-income it's designed to be forward looking,
+feel calm without guilt and solution driven unlike most apps who cater to people
+who already have lots of money, investment, etc
+
++ green makes people feel calm
+
++ if expense are more than the upcoming expenses it will trigger the AI agent
+        - need some help?
+        - why is my bill so high ? energy saving tips
+
+    !! lets focus on the actual feature and implement other UI elements later
+        - look up ai agent adk 

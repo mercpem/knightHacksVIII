@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPal</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Add Plaid Link script -->
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+    <style>
+        /* Apply the Inter font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom pink button style */
+        .btn-pink {
+            @apply bg-pink-400 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-150 hover:scale-105 active:scale-95;
+        }
+        
+        /* Custom outline button style */
+        .btn-outline {
+             @apply bg-white text-pink-500 border-2 border-pink-500 font-bold py-2 px-6 rounded-full shadow-md transform transition-transform duration-150 hover:scale-105 active:scale-95;
+        }
+
+        /* --- NEW STYLES for Mock Plaid Modal --- */
+        .mock-plaid-loader {
+            @apply absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center;
+        }
+        .mock-plaid-spinner {
+            @apply w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin;
+        }
+
+        /* --- NEW STYLES for Chat Modal --- */
+        #chat-history {
+            max-height: 300px; /* CHANGED: Use max-height instead of fixed height */
+            @apply overflow-y-auto mb-4 p-3 bg-gray-100 rounded-lg border border-gray-200;
+        }
+        .chat-bubble {
+            @apply p-3 rounded-lg mb-2 max-w-xs;
+            overflow-wrap: break-word; /* NEW: Prevents long words from overflowing */
+        }
+        .chat-user {
+            @apply bg-blue-500 text-white ml-auto;
+        }
+        .chat-bot {
+            @apply bg-gray-200 text-gray-800 mr-auto;
+        }
+        .chat-error {
+            @apply bg-red-100 text-red-700 p-3 rounded-lg text-sm;
+        }
+        .chat-source {
+            @apply text-xs text-gray-500 mt-1 block;
+        }
+        .chat-source a {
+            @apply text-blue-500 hover:underline;
+        }
+        #chat-loader {
+            @apply w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Main App Container -->
+    <div id="app-container" class="max-w-md mx-auto min-h-screen overflow-hidden">
+
+        <!-- Screen 1: Language Selection -->
+        <div id="screen-language" class="flex flex-col items-center justify-around min-h-screen p-8 bg-gradient-to-b from-green-200 to-green-300">
+            <h1 class="text-6xl font-black text-gray-800">FinPal</h1>
+            
+            <!-- Robot Icon -->
+            <div class="w-48 h-48 bg-purple-400 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
+                <span class="text-9xl">🤖</span>
+            </div>
+
+            <!-- Language Buttons -->
+            <div class="flex flex-col gap-4 w-full max-w-xs">
+                <button class="btn-pink" data-nav="screen-connect">English</button>
+                <button class="btn-pink" data-nav="screen-connect">Creole</button>
+                <button class="btn-pink" data-nav="screen-connect">Spanish</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Connect Bank -->
+        <div id="screen-connect" class="hidden flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-br from-blue-200 to-purple-200">
+            <h1 class="text-6xl font-black text-gray-800 mb-16">FinPal</h1>
+            
+            <button id="btn-connect" class="btn-pink mb-8">connect Bank</button>
+            
+            <!-- NEW Dropdown -->
+            <div class="mb-8 w-full max-w-xs">
+                <label for="spending-select" class="block text-xl text-gray-700 font-semibold mb-2 text-center">Monthly Spending</label>
+                <select id="spending-select" class="w-full p-3 rounded-full border-2 border-pink-500 text-gray-700 text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-pink-400 appearance-none text-center">
+                    <option value="0" disabled selected>Select amount...</option>
+                    <option value="100">$100.00</option>
+                    <option value="200">$200.00</option>
+                    <option value="300">$300.00</option>
+                    <option value="400">$400.00</option>
+                    <option value="500">$500.00</option>
+                    <option value="600">$600.00</option>
+                    <option value="700">$700.00</option>
+                    <option value="800">$800.00</option>
+                    <option value="900">$900.00</option>
+                    <option value="1000">$1,000.00</option>
+                </select>
+            </div>
+            
+            <button id="btn-analyze" class="btn-outline" disabled>Analyze</button>
+        </div>
+
+        <!-- Screen 3: Dashboard -->
+        <div id="screen-dashboard" class="hidden flex-col min-h-screen bg-green-100">
+            <!-- Main layout grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 flex-grow">
+                
+                <!-- Left Panel: Safe to Spend -->
+                <div classm="flex items-center justify-center p-6">
+                    <div class="w-full max-w-xs mx-auto aspect-square bg-blue-300 rounded-full flex flex-col items-center justify-center border-[10px] border-gray-800 shadow-2xl">
+                        <h2 id="safe-to-spend" class="text-5xl font-black text-gray-900">$0.00</h2>
+                        <p class="text-lg font-semibold text-gray-800">Safe to spend</p>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Info Widgets -->
+                <div class="flex flex-col gap-6">
+                    
+                    <!-- Upcoming Expenses -->
+                    <div class="bg-pink-100 p-6 rounded-2xl shadow-lg border-2 border-white">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">upcoming expenses</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3">
+                                <span class="w-5 h-5 bg-blue-600 rounded-md block"></span>
+                                <span class="text-gray-700">Utilities: $80.00</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-5 h-5 bg-green-500 rounded-md block"></span>
+                                <span class="text-gray-700">Groceries: $120.00</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-5 h-5 bg-yellow-400 rounded-md block"></span>
+                                <span class="text-gray-700">Rent: $400.00</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Review Box -->
+                    <div class="bg-orange-100 p-6 rounded-2xl shadow-lg border-2 border-white">
+                        <p class="text-gray-700">
+                            <strong>Review:</strong> There isn't much unusual recommended spending changes. One call out is to your utilities!
+                        </p>
+                    </div>
+
+                    <!-- Chat Button -->
+                    <button id="btn-chat" class="w-full bg-gray-800 text-white font-bold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transform transition-transform duration-150 hover:scale-105 active:scale-95">
+                        Chat with Dale 🤖
+                    </button>
+                </div>
+
+            </div>
+            <!-- Navigation back button (optional) -->
+            <div class="p-6">
+                 <button class="text-gray-600 hover:text-black" data-nav="screen-connect">← Back</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NEW: Mock Plaid Link Modal -->
+    <div id="plaid-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full relative">
+            <div id="plaid-loader" class="hidden mock-plaid-loader rounded-2xl">
+                <div class="mock-plaid-spinner"></div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">FinPal + Plaid</h2>
+                <button id="btn-close-plaid-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            
+            <p class="text-gray-600 mb-6">Select your bank to continue (this is a simulation).</p>
+            
+            <div class="space-y-3">
+                <button class="mock-bank-btn w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    Chase (mock)
+                </button>
+                <button class="mock-bank-btn w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    Bank of America (mock)
+                </button>
+                <button class="mock-bank-btn w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    Wells Fargo (mock)
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Chat Modal (hidden by default) -->
+    <div id="chat-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Chat with Dale 🤖</h2>
+                <button id="btn-close-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+
+            <!-- This is the main chat interface -->
+            <div id="chat-interface">
+                <!-- Chat History -->
+                <div id="chat-history">
+                    <!-- Messages will be added here -->
+                    <div class="chat-bubble chat-bot">
+                        Hi! I'm Dale. How can I help you with your finances today?
+                    </div>
+                </div>
+                
+                <!-- Chat Loader -->
+                <div id="chat-loader-container" class="hidden items-center justify-center mb-2">
+                    <div id="chat-loader"></div>
+                    <span class="ml-2 text-gray-500">Dale is typing...</span>
+                </div>
+
+                <!-- Message Input -->
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="chat-input" class="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Ask Dale anything..." autocomplete="off">
+                    <button type="submit" class="btn-pink !py-3 !px-5 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                            <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.941l18-9a.75.75 0 0 0 0-1.352l-18-9Z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        // --- API KEY (Provided by user) ---
+        // WARNING: Do not expose this in a public application.
+        // This should be on a server.
+        const geminiApiKey = "AIzaSyCamtDIvsUsQptURwca3JvMTx54h_x7WrQ";
+
+        // --- System Prompt for Dale ---
+        const systemPrompt = "You are Dale, a friendly, cheerful, and helpful financial pal robot. Your goal is to provide simple, encouraging, and easy-to-understand financial advice. You are not a licensed financial advisor, so you must not give direct investment advice (like 'buy X stock'). Instead, you should explain concepts, answer questions, and help users understand their spending. You have access to Google Search for current information. Keep your answers concise and friendly.";
+
+        // --- Chat History ---
+        let chatHistory = [
+            { role: "user", parts: [{ text: "Hi" }] }, // Start with a user message to set context
+            { role: "model", parts: [{ text: "Hi! I'm Dale. How can I help you with your finances today?" }] } // Dale's greeting
+        ];
+
+        // Get all screens and navigation buttons
+        const screens = document.querySelectorAll('#app-container > div');
+        const navButtons = document.querySelectorAll('[data-nav]');
+        
+        // --- Screen 2 Elements ---
+        const connectButton = document.getElementById('btn-connect');
+        const spendingSelect = document.getElementById('spending-select');
+        const analyzeButton = document.getElementById('btn-analyze');
+        
+        // --- Screen 3 Elements ---
+        const safeToSpend = document.getElementById('safe-to-spend');
+        
+        // --- Plaid Modal Elements ---
+        const plaidModal = document.getElementById('plaid-modal');
+        const plaidLoader = document.getElementById('plaid-loader');
+        const closePlaidModalButton = document.getElementById('btn-close-plaid-modal');
+        const mockBankButtons = document.querySelectorAll('.mock-bank-btn');
+
+        // --- Chat Modal Elements ---
+        const chatModal = document.getElementById('chat-modal');
+        const chatButton = document.getElementById('btn-chat');
+        const closeModalButton = document.getElementById('btn-close-modal');
+        const chatInterface = document.getElementById('chat-interface');
+        const chatHistoryDiv = document.getElementById('chat-history');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatLoader = document.getElementById('chat-loader-container');
+        
+        // Function to show a specific screen
+        function showScreen(screenId) {
+            screens.forEach(screen => {
+                if (screen.id === screenId) {
+                    // Use flex for active screens, as they are flex containers
+                    screen.classList.remove('hidden');
+                    screen.classList.add('flex');
+                } else {
+                    screen.classList.add('hidden');
+                    screen.classList.remove('flex');
+                }
+            });
+        }
+
+        // Add click listeners to all navigation buttons
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetScreen = button.getAttribute('data-nav');
+                showScreen(targetScreen);
+            });
+        });
+
+        // --- Plaid Link Integration ---
+    
+        // This is the simulation logic from before, moved into a function
+        // We'll call this after a successful (mocked) Plaid connection
+        function completeBankConnectionSimulation() {
+            // const spendingText = document.getElementById('spending-text'); // This is gone
+            // const safeToSpend = document.getElementById('safe-to-spend'); // Moved to analyze
+
+            // Update "Analyze" button text
+            connectButton.textContent = 'Bank Connected!';
+            connectButton.classList.remove('btn-pink'); // Remove old style
+            // Re-add tailwind classes for the green button state
+            connectButton.classList.add('bg-green-500', 'text-white', 'font-bold', 'py-3', 'px-8', 'rounded-full', 'shadow-lg'); 
+            connectButton.disabled = true;
+            
+            // --- NEW ---
+            // Enable the Analyze button
+            analyzeButton.disabled = false;
+            analyzeButton.textContent = 'Analyze'; // Reset text just in case
+            
+            // We no longer simulate setting safeToSpend here. That happens on Analyze click.
+            
+            console.log("UI Updated to 'Bank Connected' state. Analyze button enabled.");
+        }
+
+        // This function will handle opening the Plaid Link module
+        const openPlaidLink = async () => {
+            // connectButton.disabled = true; // We'll disable it *during* connection
+            // connectButton.textContent = 'Loading...'; // Not needed, modal is the loader
+
+            // In a real application, you *must* fetch a link_token from your server.
+            // You cannot create one on the client-side as it requires your API secret.
+            
+            console.log("Simulating server call to /api/create_link_token...");
+            
+            // --- THIS IS A SIMULATION ---
+            // Instead of fetching a token, we will just show our
+            // mock Plaid modal.
+            
+            console.log("Showing mock Plaid Link modal.");
+            plaidModal.classList.remove('hidden');
+            
+            // --- REAL PLAID CODE WOULD GO HERE ---
+            /*
+            const handler = Plaid.create({ ... });
+            handler.open();
+            */
+        };
+        
+        // Replace the old simple click listener with the new Plaid flow
+        connectButton.addEventListener('click', openPlaidLink);
+
+        // --- NEW: Mock Plaid Modal Logic ---
+        
+        // Logic for clicking a mock bank
+        mockBankButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Show the loader inside the modal
+                plaidLoader.classList.remove('hidden');
+                
+                // Simulate Plaid's login/connection time
+                setTimeout(() => {
+                    // Hide the loader and the modal
+                    plaidLoader.classList.add('hidden');
+                    plaidModal.classList.add('hidden');
+                    
+                    // Run the original success function
+                    completeBankConnectionSimulation();
+                    
+                }, 2000); // Simulate 2 seconds of loading
+            });
+        });
+
+        // Logic for closing the modal
+        closePlaidModalButton.addEventListener('click', () => {
+            plaidModal.classList.add('hidden');
+            // Re-enable the connect button if they closed without "connecting"
+            connectButton.disabled = false;
+        });
+
+
+        // --- NEW: Analyze Button Logic ---
+        analyzeButton.addEventListener('click', () => {
+            const selectedSpending = parseInt(spendingSelect.value, 10);
+            
+            if (selectedSpending === 0 || isNaN(selectedSpending)) {
+                // Show a simple error message (without alert)
+                analyzeButton.textContent = 'Please select spending!';
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    analyzeButton.textContent = 'Analyze';
+                }, 2000);
+                return; // Stop execution
+            }
+            
+            // --- Calculation Logic ---
+            // These are the hardcoded expenses from the dashboard UI
+            const fixedExpenses = 80.00 + 120.00 + 400.00; // Total: 600
+            
+            // Calculate "safe to spend"
+            const calculatedSafeToSpend = selectedSpending - fixedExpenses;
+            
+            // Update the dashboard screen
+            // Format as currency
+            safeToSpend.textContent = `$${calculatedSafeToSpend.toFixed(2)}`;
+            
+            // Navigate to the dashboard
+            showScreen('screen-dashboard');
+        });
+
+
+        // --- Chat Modal Logic ---
+
+        chatButton.addEventListener('click', () => {
+            // Since we have the key, just show the chat interface
+            chatModal.classList.remove('hidden');
+            chatInput.focus();
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            chatModal.classList.add('hidden');
+        });
+
+        // --- NEW: Handle Chat Submission ---
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userMessage = chatInput.value.trim();
+            if (!userMessage) return;
+
+            // Add user message to UI
+            addMessageToUI('user', userMessage);
+            // Add to history
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+
+            // Clear input and show loader
+            chatInput.value = '';
+            chatLoader.classList.remove('hidden');
+            chatLoader.classList.add('flex');
+
+            // Call the Gemini API
+            callGeminiApi();
+        });
+
+        // --- NEW: Add Message to UI Function ---
+        function addMessageToUI(sender, message, sources = []) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble');
+            
+            if (sender === 'user') {
+                bubble.classList.add('chat-user');
+                bubble.textContent = message;
+            } else if (sender === 'bot') {
+                bubble.classList.add('chat-bot');
+                // Sanitize message content slightly (simple text replace)
+                bubble.textContent = message;
+
+                // Add sources if they exist
+                if (sources.length > 0) {
+                    const sourcesDiv = document.createElement('div');
+                    sourcesDiv.className = 'mt-2 border-t border-gray-300 pt-2';
+                    sourcesDiv.innerHTML = '<strong class="text-xs font-bold text-gray-600">Sources:</strong>';
+                    const sourcesList = document.createElement('ul');
+                    sourcesList.className = 'list-disc list-inside';
+                    
+                    sources.forEach((source, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'truncate';
+                        const a = document.createElement('a');
+                        a.href = source.uri;
+                        a.textContent = source.title || `Source ${index + 1}`;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.className = 'chat-source';
+                        li.appendChild(a);
+                        sourcesList.appendChild(li);
+                    });
+                    sourcesDiv.appendChild(sourcesList);
+                    bubble.appendChild(sourcesDiv);
+                }
+
+            } else if (sender === 'error') {
+                bubble.classList.add('chat-error');
+                bubble.textContent = message;
+            }
+
+            chatHistoryDiv.appendChild(bubble);
+            
+            // --- NEW, MORE RELIABLE SCROLL LOGIC ---
+            // This tells the browser to scroll the new bubble into view.
+            // It's much cleaner than calculating scrollHeight.
+            bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        // --- NEW: Exponential Backoff Function ---
+        async function exponentialBackoff(apiCall, maxRetries = 5) {
+            let delay = 1000; // 1 second
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await apiCall();
+                    if (response.ok) {
+                        return response; // Success
+                    } else if (response.status === 429) {
+                        // Throttled, wait and retry
+                        console.warn(`API rate limit hit. Retrying in ${delay}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Double the delay
+                    } else {
+                        // Other error
+                        console.error(`API Error: ${response.status} ${response.statusText}`);
+                        const errorData = await response.json();
+                        return Promise.reject(new Error(errorData.error?.message || 'Failed to fetch from API'));
+                    }
+                } catch (error) {
+                    // Network error, retry
+                    console.warn(`Network error. Retrying in ${delay}ms...`, error);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+            return Promise.reject(new Error('API call failed after all retries.'));
+        }
+
+        // --- NEW: Call Gemini API Function ---
+        async function callGeminiApi() {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`;
+
+            const payload = {
+                contents: [
+                    // The system prompt is now part of the history,
+                    // but we can also send it separately.
+                    ...chatHistory 
+                ],
+                tools: [{ "google_search": {} }], // Enable Google Search
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const apiCall = () => fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const response = await exponentialBackoff(apiCall);
+                const result = await response.json();
+
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const botMessage = candidate.content.parts[0].text;
+                    
+                    // Extract sources
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attr => ({
+                                uri: attr.web?.uri,
+                                title: attr.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title); // Ensure valid
+                    }
+
+                    // Add to history
+                    chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
+                    // Add to UI
+                    addMessageToUI('bot', botMessage, sources);
+
+                } else {
+                    console.error("No valid response from API:", result);
+                    addMessageToUI('error', "Sorry, I couldn't get a response. (No content)");
+                }
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                addMessageToUI('error', `Sorry, something went wrong: ${error.message}`);
+            } finally {
+                // Hide loader
+                chatLoader.classList.add('hidden');
+                chatLoader.classList.remove('flex');
+            }
+        }
+
+        // Show the first screen by default
+        showScreen('screen-language');
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
