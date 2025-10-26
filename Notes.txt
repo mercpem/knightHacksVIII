@@ -34,3 +34,7 @@ who already have lots of money, investment, etc
 
     !! lets focus on the actual feature and implement other UI elements later
         - look up ai agent adk 
+
+@ 10:32pm we ended up messing up the entire code of the previous version of our project
+trying to integrate our own UI design in FIGMA. We did not cook so we created a new version only utitilizing html 
+and its proving to be so much easier for our skillset 
