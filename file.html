@@ -78,7 +78,7 @@
     <div id="app-container" class="max-w-md mx-auto min-h-screen overflow-hidden">
 
         <!-- Screen 1: Language Selection -->
-        <div id="screen-language" class="flex flex-col items-center justify-around min-h-screen p-8 bg-gradient-to-b from-green-200 to-green-300">
+    <div id="screen-language" class="relative flex flex-col items-center justify-around min-h-screen p-8 bg-gradient-to-b from-green-200 to-green-300">
             <h1 class="text-6xl font-black text-gray-800">FinPal</h1>
             
             <!-- Robot Icon -->
@@ -92,6 +92,8 @@
                 <button class="btn-pink" data-lang="ht">Creole</button>
                 <button class="btn-pink" data-lang="es">Spanish</button>
             </div>
+            <!-- Top-right About link -->
+            <button class="absolute top-4 right-4 text-sm text-gray-700 hover:underline" data-nav="screen-about">About</button>
         </div>
 
         <!-- Screen 2: Connect Bank -->
@@ -119,6 +121,32 @@
             </div>
             
             <button id="btn-analyze" class="btn-outline" disabled>Analyze</button>
+        </div>
+
+        <!-- Screen X: About -->
+        <div id="screen-about" class="hidden flex-col items-start justify-start min-h-screen p-8 bg-white">
+            <div class="w-full flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">About FinPal</h1>
+                <button class="text-gray-600 hover:text-black" data-nav="screen-language">Close</button>
+            </div>
+
+            <div class="prose max-w-none text-gray-800">
+                <h2>About FinPal’s AI Agent for you, Dale</h2>
+                <p>Meet Dale, your friendly AI assistant to help you navigate your finances with confidence. Dale can help you simplify your budgeting and offer support when you need it most. And most importantly, Dale will keep your information safe.</p>
+
+                <h3>Budgeting Made Easier</h3>
+                <p>Dale helps you keep track of your spending and anticipate any upcoming expenses so you can feel confident and be prepared for any possibility. Think of Dale as your personal guide to managing money effectively.</p>
+
+                <h3>Support When You Need it</h3>
+                <p>Sometimes things don’t go as planned. If your account balance is running low, Dale can proactively step in to help you find local assistance resources, like food banks, or utility assistance programs in your area.</p>
+
+                <h3>Secure and Private</h3>
+                <p>Your financial information is sensitive, and we take that seriously. Dale is an AI assistant (not a human), and all your interactions are encrypted and kept confidential. Your privacy and security are top priorities!</p>
+            </div>
+
+            <div class="mt-8">
+                <button class="btn-outline" data-nav="screen-language">← Back</button>
+            </div>
         </div>
 
         <!-- Screen 3: Dashboard -->
