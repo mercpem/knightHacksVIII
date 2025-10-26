@@ -470,8 +470,43 @@
                 bubble.textContent = message;
             } else if (sender === 'bot') {
                 bubble.classList.add('chat-bot');
-                // Sanitize message content slightly (simple text replace)
-                bubble.textContent = message;
+
+                // Truncate long messages and provide a Show more / Show less control
+                const MAX_CHARS = 400; // adjust as needed
+                const isLong = message && message.length > MAX_CHARS;
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'chat-bot-text';
+                // Use textContent to avoid HTML injection from model
+                if (!isLong) {
+                    textDiv.textContent = message;
+                    bubble.appendChild(textDiv);
+                } else {
+                    const shortText = message.slice(0, MAX_CHARS) + '…';
+                    textDiv.textContent = shortText;
+                    bubble.appendChild(textDiv);
+
+                    const toggle = document.createElement('button');
+                    toggle.type = 'button';
+                    toggle.className = 'mt-2 text-sm text-blue-600 hover:underline';
+                    toggle.textContent = 'Show more';
+                    let expanded = false;
+                    toggle.addEventListener('click', () => {
+                        expanded = !expanded;
+                        if (expanded) {
+                            textDiv.textContent = message;
+                            toggle.textContent = 'Show less';
+                        } else {
+                            textDiv.textContent = shortText;
+                            toggle.textContent = 'Show more';
+                        }
+
+                        // After toggling, ensure the bubble is scrolled into view
+                        bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    });
+
+                    bubble.appendChild(toggle);
+                }
 
                 // Add sources if they exist
                 if (sources.length > 0) {
@@ -480,7 +515,7 @@
                     sourcesDiv.innerHTML = '<strong class="text-xs font-bold text-gray-600">Sources:</strong>';
                     const sourcesList = document.createElement('ul');
                     sourcesList.className = 'list-disc list-inside';
-                    
+
                     sources.forEach((source, index) => {
                         const li = document.createElement('li');
                         li.className = 'truncate';
@@ -504,10 +539,15 @@
 
             chatHistoryDiv.appendChild(bubble);
             
-            // --- NEW, MORE RELIABLE SCROLL LOGIC ---
-            // This tells the browser to scroll the new bubble into view.
-            // It's much cleaner than calculating scrollHeight.
-            bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            // Ensure the chat history scrolls to the newest message
+            // First try smooth scroll to the bubble; then guarantee by setting scrollTop
+            try {
+                bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            } catch (e) {
+                // ignore
+            }
+            // Guarantee final position (instant)
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
         }
 
         // --- NEW: Exponential Backoff Function ---
