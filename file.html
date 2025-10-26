@@ -407,7 +407,22 @@
             // Update the dashboard screen
             // Format as currency
             safeToSpend.textContent = `$${calculatedSafeToSpend.toFixed(2)}`;
-            
+
+            // Update the review text based on remaining safe-to-spend
+            const reviewEl = document.getElementById('review-text');
+            if (calculatedSafeToSpend <= 0) {
+                // If nothing left to spend, encourage user to talk to Dale about resources
+                const zeroMsg = (translations[currentLang] && translations[currentLang].review_no_safe)
+                    ? translations[currentLang].review_no_safe
+                    : '<strong>Review:</strong> It looks like there\'s nothing left to spend after your bills. Consider chatting with Dale about resources, assistance programs, or ways to adjust your budget.';
+                reviewEl.innerHTML = zeroMsg;
+            } else {
+                // Default review text
+                reviewEl.innerHTML = (translations[currentLang] && translations[currentLang].review)
+                    ? translations[currentLang].review
+                    : reviewEl.innerHTML;
+            }
+
             // Navigate to the dashboard
             showScreen('screen-dashboard');
         });
@@ -596,6 +611,7 @@
                 safeToSpendLabel: 'Safe to spend',
                 upcoming: 'Upcoming expenses',
                 review: '<strong>Review:</strong> There isn\'t much unusual recommended spending changes. One call out is to your utilities!',
+                    review_no_safe: '<strong>Review:</strong> It looks like there\'s nothing left to spend after your bills. Consider chatting with Dale about resources, assistance programs, or ways to adjust your budget.',
                 chatWithDale: 'Chat with Dale 🤖',
                 plaidTitle: 'FinPal + Plaid',
                 plaidDesc: 'Select your bank to continue (this is a simulation).',
@@ -611,6 +627,7 @@
                 safeToSpendLabel: 'Seguro para gastar',
                 upcoming: 'Gastos próximos',
                 review: '<strong>Revisión:</strong> No hay cambios recomendados inusuales. Observa tus servicios públicos.',
+                    review_no_safe: '<strong>Revisión:</strong> Parece que no queda nada para gastar después de pagar sus facturas. Considere hablar con Dale sobre recursos, programas de ayuda o formas de ajustar su presupuesto.',
                 chatWithDale: 'Chatear con Dale 🤖',
                 plaidTitle: 'FinPal + Plaid',
                 plaidDesc: 'Seleccione su banco para continuar (esto es una simulación).',
@@ -626,6 +643,7 @@
                 safeToSpendLabel: 'Ki san danje pou depanse',
                 upcoming: "Depans k'ap vini",
                 review: '<strong>Revizyon:</strong> Pa gen anpil chanjman rekòmande. Kenbe yon je sou sèvis piblik yo.',
+                    review_no_safe: '<strong>Revizyon:</strong> Li sanble pa gen anyen ki rete pou depanse apre ou fin peye bòdwo yo. Konsidere pale ak Dale sou resous, pwogram asistans, oswa fason pou ajiste bidjè ou.',
                 chatWithDale: 'Chat ak Dale 🤖',
                 plaidTitle: 'FinPal + Plaid',
                 plaidDesc: 'Chwazi bank ou pou kontinye (sa a se yon simulasyon).',
