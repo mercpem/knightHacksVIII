@@ -1,0 +1,13 @@
+# Local environment files
+.env
+server/.env
+
+# Node modules
+node_modules/
+
+# Ignore local about text (user requested untracked)
+about.txt
+
+# Editor / OS files
+.DS_Store
+.vscode/
