@@ -501,8 +501,16 @@
                             toggle.textContent = 'Show more';
                         }
 
-                        // After toggling, ensure the bubble is scrolled into view
-                        bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        // After toggling, ensure the bubble is scrolled into view.
+                        // Use a short timeout so the browser finishes layout before scrolling.
+                        setTimeout(() => {
+                            try {
+                                bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                            } catch (e) {
+                                // ignore
+                            }
+                            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                        }, 50);
                     });
 
                     bubble.appendChild(toggle);
