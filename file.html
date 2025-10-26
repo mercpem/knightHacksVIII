@@ -82,9 +82,9 @@
 
             <!-- Language Buttons -->
             <div class="flex flex-col gap-4 w-full max-w-xs">
-                <button class="btn-pink" data-nav="screen-connect">English</button>
-                <button class="btn-pink" data-nav="screen-connect">Creole</button>
-                <button class="btn-pink" data-nav="screen-connect">Spanish</button>
+                <button class="btn-pink" data-lang="en">English</button>
+                <button class="btn-pink" data-lang="ht">Creole</button>
+                <button class="btn-pink" data-lang="es">Spanish</button>
             </div>
         </div>
 
@@ -96,9 +96,9 @@
             
             <!-- NEW Dropdown -->
             <div class="mb-8 w-full max-w-xs">
-                <label for="spending-select" class="block text-xl text-gray-700 font-semibold mb-2 text-center">Monthly Spending</label>
+                <label id="spending-label" for="spending-select" class="block text-xl text-gray-700 font-semibold mb-2 text-center">Monthly Spending</label>
                 <select id="spending-select" class="w-full p-3 rounded-full border-2 border-pink-500 text-gray-700 text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-pink-400 appearance-none text-center">
-                    <option value="0" disabled selected>Select amount...</option>
+                    <option id="spending-placeholder" value="0" disabled selected>Select amount...</option>
                     <option value="100">$100.00</option>
                     <option value="200">$200.00</option>
                     <option value="300">$300.00</option>
@@ -124,7 +124,7 @@
                 <div classm="flex items-center justify-center p-6">
                     <div class="w-full max-w-xs mx-auto aspect-square bg-blue-300 rounded-full flex flex-col items-center justify-center border-[10px] border-gray-800 shadow-2xl">
                         <h2 id="safe-to-spend" class="text-5xl font-black text-gray-900">$0.00</h2>
-                        <p class="text-lg font-semibold text-gray-800">Safe to spend</p>
+                        <p id="safe-to-spend-label" class="text-lg font-semibold text-gray-800">Safe to spend</p>
                     </div>
                 </div>
 
@@ -133,7 +133,7 @@
                     
                     <!-- Upcoming Expenses -->
                     <div class="bg-pink-100 p-6 rounded-2xl shadow-lg border-2 border-white">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">upcoming expenses</h3>
+                        <h3 id="upcoming-label" class="text-lg font-bold text-gray-800 mb-4">upcoming expenses</h3>
                         <ul class="space-y-3">
                             <li class="flex items-center gap-3">
                                 <span class="w-5 h-5 bg-blue-600 rounded-md block"></span>
@@ -152,7 +152,7 @@
 
                     <!-- Review Box -->
                     <div class="bg-orange-100 p-6 rounded-2xl shadow-lg border-2 border-white">
-                        <p class="text-gray-700">
+                        <p id="review-text" class="text-gray-700">
                             <strong>Review:</strong> There isn't much unusual recommended spending changes. One call out is to your utilities!
                         </p>
                     </div>
@@ -180,11 +180,11 @@
             </div>
             
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">FinPal + Plaid</h2>
+                <h2 id="plaid-title" class="text-2xl font-bold">FinPal + Plaid</h2>
                 <button id="btn-close-plaid-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
             </div>
             
-            <p class="text-gray-600 mb-6">Select your bank to continue (this is a simulation).</p>
+            <p id="plaid-desc" class="text-gray-600 mb-6">Select your bank to continue (this is a simulation).</p>
             
             <div class="space-y-3">
                 <button class="mock-bank-btn w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-100">
@@ -205,7 +205,7 @@
     <div id="chat-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full flex flex-col">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Chat with Dale 🤖</h2>
+                <h2 id="chat-title" class="text-2xl font-bold">Chat with Dale 🤖</h2>
                 <button id="btn-close-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
             </div>
 
@@ -214,9 +214,6 @@
                 <!-- Chat History -->
                 <div id="chat-history">
                     <!-- Messages will be added here -->
-                    <div class="chat-bubble chat-bot">
-                        Hi! I'm Dale. How can I help you with your finances today?
-                    </div>
                 </div>
                 
                 <!-- Chat Loader -->
@@ -588,6 +585,102 @@
                 chatLoader.classList.remove('flex');
             }
         }
+
+        // --- Localization / Translations ---
+        const translations = {
+            en: {
+                connect: 'Connect your bank',
+                spendingLabel: 'Monthly Spending',
+                selectAmount: 'Select amount...',
+                analyze: 'Analyze',
+                safeToSpendLabel: 'Safe to spend',
+                upcoming: 'Upcoming expenses',
+                review: '<strong>Review:</strong> There isn\'t much unusual recommended spending changes. One call out is to your utilities!',
+                chatWithDale: 'Chat with Dale 🤖',
+                plaidTitle: 'FinPal + Plaid',
+                plaidDesc: 'Select your bank to continue (this is a simulation).',
+                chatTitle: 'Chat with Dale 🤖',
+                chatPlaceholder: 'Ask Dale anything...',
+                daleGreeting: "Hi! I'm Dale. How can I help you with your finances today?"
+            },
+            es: {
+                connect: 'Conectar banco',
+                spendingLabel: 'Gasto mensual',
+                selectAmount: 'Selecciona un monto...',
+                analyze: 'Analizar',
+                safeToSpendLabel: 'Seguro para gastar',
+                upcoming: 'Gastos próximos',
+                review: '<strong>Revisión:</strong> No hay cambios recomendados inusuales. Observa tus servicios públicos.',
+                chatWithDale: 'Chatear con Dale 🤖',
+                plaidTitle: 'FinPal + Plaid',
+                plaidDesc: 'Seleccione su banco para continuar (esto es una simulación).',
+                chatTitle: 'Chatear con Dale 🤖',
+                chatPlaceholder: 'Pregúntale a Dale...',
+                daleGreeting: '¡Hola! Soy Dale. ¿Cómo puedo ayudarte con tus finanzas hoy?'
+            },
+            ht: {
+                connect: 'Konekte bank',
+                spendingLabel: 'Depans chak mwa',
+                selectAmount: 'Chwazi yon kantite...',
+                analyze: 'Analize',
+                safeToSpendLabel: 'Ki san danje pou depanse',
+                upcoming: "Depans k'ap vini",
+                review: '<strong>Revizyon:</strong> Pa gen anpil chanjman rekòmande. Kenbe yon je sou sèvis piblik yo.',
+                chatWithDale: 'Chat ak Dale 🤖',
+                plaidTitle: 'FinPal + Plaid',
+                plaidDesc: 'Chwazi bank ou pou kontinye (sa a se yon simulasyon).',
+                chatTitle: 'Chat ak Dale 🤖',
+                chatPlaceholder: 'Mande Dale nenpòt bagay...',
+                daleGreeting: 'Bonjou! Mwen se Dale. Kòman mwen ka ede w ak finans ou jodi a?'
+            }
+        };
+
+        // Apply selected language to UI
+        let currentLang = 'en';
+        const langButtons = document.querySelectorAll('[data-lang]');
+
+        function applyLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+
+            // UI text updates
+            try {
+                connectButton.textContent = translations[lang].connect;
+                document.getElementById('spending-label').textContent = translations[lang].spendingLabel;
+                document.getElementById('spending-placeholder').textContent = translations[lang].selectAmount;
+                analyzeButton.textContent = translations[lang].analyze;
+                document.getElementById('safe-to-spend-label').textContent = translations[lang].safeToSpendLabel;
+                document.getElementById('upcoming-label').textContent = translations[lang].upcoming;
+                document.getElementById('review-text').innerHTML = translations[lang].review;
+                document.getElementById('btn-chat').textContent = translations[lang].chatWithDale;
+                document.getElementById('plaid-title').textContent = translations[lang].plaidTitle;
+                document.getElementById('plaid-desc').textContent = translations[lang].plaidDesc;
+                document.getElementById('chat-title').textContent = translations[lang].chatTitle;
+                chatInput.placeholder = translations[lang].chatPlaceholder;
+            } catch (err) {
+                // Element might not exist on some screens — that's fine
+                console.warn('Localization: some elements not found for language application.', err);
+            }
+
+            // Reset chat history UI and show localized greeting
+            chatHistory = [];
+            chatHistoryDiv.innerHTML = '';
+            addMessageToUI('bot', translations[lang].daleGreeting);
+            chatHistory.push({ role: 'model', parts: [{ text: translations[lang].daleGreeting }] });
+        }
+
+        // Wire up language buttons
+        langButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.dataset.lang;
+                applyLanguage(lang);
+                // Navigate to connect screen after selecting language
+                showScreen('screen-connect');
+            });
+        });
+
+        // Initialize default language
+        applyLanguage('en');
 
         // Show the first screen by default
         showScreen('screen-language');
