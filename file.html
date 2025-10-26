@@ -45,12 +45,18 @@
         .chat-bubble {
             @apply p-3 rounded-lg mb-2 max-w-xs;
             overflow-wrap: break-word; /* NEW: Prevents long words from overflowing */
+            /* Allow smooth internal scrolling when messages are long */
+            -webkit-overflow-scrolling: touch;
         }
         .chat-user {
             @apply bg-blue-500 text-white ml-auto;
         }
         .chat-bot {
             @apply bg-gray-200 text-gray-800 mr-auto;
+            /* Make bot bubbles scrollable when content is long */
+            max-height: 220px; /* adjust as needed */
+            overflow-y: auto;
+            padding-right: 0.75rem; /* space for scrollbar */
         }
         .chat-error {
             @apply bg-red-100 text-red-700 p-3 rounded-lg text-sm;
@@ -471,50 +477,13 @@
             } else if (sender === 'bot') {
                 bubble.classList.add('chat-bot');
 
-                // Truncate long messages and provide a Show more / Show less control
-                const MAX_CHARS = 400; // adjust as needed
-                const isLong = message && message.length > MAX_CHARS;
-
+                // Render the full bot message inside the bubble.
+                // Bubble itself is scrollable (max-height + overflow-y:auto).
                 const textDiv = document.createElement('div');
                 textDiv.className = 'chat-bot-text';
                 // Use textContent to avoid HTML injection from model
-                if (!isLong) {
-                    textDiv.textContent = message;
-                    bubble.appendChild(textDiv);
-                } else {
-                    const shortText = message.slice(0, MAX_CHARS) + '…';
-                    textDiv.textContent = shortText;
-                    bubble.appendChild(textDiv);
-
-                    const toggle = document.createElement('button');
-                    toggle.type = 'button';
-                    toggle.className = 'mt-2 text-sm text-blue-600 hover:underline';
-                    toggle.textContent = 'Show more';
-                    let expanded = false;
-                    toggle.addEventListener('click', () => {
-                        expanded = !expanded;
-                        if (expanded) {
-                            textDiv.textContent = message;
-                            toggle.textContent = 'Show less';
-                        } else {
-                            textDiv.textContent = shortText;
-                            toggle.textContent = 'Show more';
-                        }
-
-                        // After toggling, ensure the bubble is scrolled into view.
-                        // Use a short timeout so the browser finishes layout before scrolling.
-                        setTimeout(() => {
-                            try {
-                                bubble.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                            } catch (e) {
-                                // ignore
-                            }
-                            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-                        }, 50);
-                    });
-
-                    bubble.appendChild(toggle);
-                }
+                textDiv.textContent = message;
+                bubble.appendChild(textDiv);
 
                 // Add sources if they exist
                 if (sources.length > 0) {
